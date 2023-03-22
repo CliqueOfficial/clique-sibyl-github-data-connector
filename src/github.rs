@@ -70,32 +70,35 @@ impl DataConnector for GithubConnector {
                 match parse_result(&plaintext) {
                     Ok(resp_json) => {
                         result = match panic::catch_unwind(|| {
+                            let zero_value = json!(0);
+                            let empty_str_value = json!("");
                             let user_name: &Value = resp_json.pointer(
                                 "/data/user/name"
                             ).unwrap_or(resp_json.pointer(
                                 "/data/user/login"
-                            ).unwrap_or(json!("")));
+                            ).unwrap_or(&empty_str_value));
                             let followers: i64 = resp_json.pointer(
-                                "/data/user/followers/totalCount".unwrap_or(json!(0))
-                            ).as_i64().unwrap_or(0);
+                                "/data/user/followers/totalCount"
+                            ).unwrap_or(&zero_value).as_i64().unwrap_or(0);
+                            let empty_list_value = json!([]);
                             let repos: &Value = resp_json.pointer(
-                                "/data/user/repositories/nodes".unwrap_or(json!([]))
-                            );
+                                "/data/user/repositories/nodes"
+                            ).unwrap_or(&empty_list_value);
                             let mut total_stars: i64 = 0;
-                            for repo in repos.as_array().unwrap_or(json!([])) {
-                                total_stars += repo.pointer("/stargazers/totalCount").unwrap_or(json!(0));
+                            for repo in repos.as_array().unwrap_or(&empty_list_value.as_array().unwrap()) {
+                                total_stars += repo.pointer("/stargazers/totalCount").unwrap_or(&zero_value);
                             }
                             let total_commits: i64 = resp_json.pointer(
                                 "/data/user/contributionsCollection/totalCommitContributions"
-                            ).unwrap_or(json!(0)).as_i64().unwrap_or(0);
+                            ).unwrap_or(&zero_value).as_i64().unwrap_or(0);
                             let total_prs: i64 = resp_json.pointer(
                                 "/data/user/pullRequests/totalCount"
-                            ).unwrap_or(json!(0)).as_i64().unwrap_or();
+                            ).unwrap_or(&zero_value).as_i64().unwrap_or(0);
                             let contributed_to: i64 = resp_json.pointer(
                                 "/data/user/repositoriesContributedTo/totalCount"
-                            ).unwrap_or(json!(0)).as_i64().unwrap_or();
-                            let total_open_issues: &Value = resp_json.pointer("/data/user/openIssues/totalCount").unwrap_or(json!(0));
-                            let total_closed_issues: &Value = resp_json.pointer("/data/user/closedIssues/totalCount").unwrap_or(json!(0));
+                            ).unwrap_or(&zero_value).as_i64().unwrap_or(0);
+                            let total_open_issues: &Value = resp_json.pointer("/data/user/openIssues/totalCount").unwrap_or(&zero_value);
+                            let total_closed_issues: &Value = resp_json.pointer("/data/user/closedIssues/totalCount").unwrap_or(&zero_value);
                             let total_issues: i64 = total_open_issues.as_i64().unwrap_or(0) + total_closed_issues.as_i64().unwrap_or(0);
 
                             let req = format!(
