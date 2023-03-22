@@ -69,7 +69,7 @@ impl DataConnector for GithubConnector {
                 match parse_result(&plaintext) {
                     Ok(resp_json) => {
                         result = match panic::catch_unwind(|| {
-                            let zero_value = serde_json::to_value(0);
+                            let zero_value = json!(0i64);
                             let empty_str_value = json!("");
                             let user_name: &Value = resp_json.pointer(
                                 "/data/user/name"
