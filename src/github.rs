@@ -8,7 +8,7 @@ use String;
 use std::panic;
 use std::time::*;
 // use std::untrusted::time::SystemTimeEx;
-use sibyl_base_data_connector::utils::{parse_result_chunked, parse_result, tls_post};
+use sibyl_base_data_connector::utils::{parse_result, tls_post};
 use sibyl_base_data_connector::utils::simple_tls_client;
 
 // Github GraphQL API
@@ -67,7 +67,7 @@ impl DataConnector for GithubConnector {
                 };
                 let mut reason = "".to_string();
                 let mut result: Value = json!("fail");
-                match parse_result_chunked(&plaintext) {
+                match parse_result(&plaintext) {
                     Ok(resp_json) => {
                         result = match panic::catch_unwind(|| {
                             let user_name: &Value = resp_json.pointer(
@@ -132,7 +132,6 @@ impl DataConnector for GithubConnector {
                                 return Err(err);
                             }
                         };
-                        
                     },
                     Err(e) => {
                         reason = e;
