@@ -109,12 +109,12 @@ impl DataConnector for GithubConnector {
                                 HOST: {}\r\n\
                                 User-Agent: curl/7.79.1\r\n\
                                 Accept: */*\r\n\r\n",
-                                if enable_fields & 0b1 { followers } else { mask_value },
-                                if enable_fields & 0b10 { total_stars } else { mask_value },
-                                if enable_fields & 0b100 { total_commits } else { mask_value },
-                                if enable_fields & 0b1000 { total_prs } else { mask_value },
-                                if enable_fields & 0b10000 { contributed_to } else { mask_value },
-                                if enable_fields & 0b100000 { total_issues } else { mask_value },
+                                if enable_fields & 0b1 > 0 { followers } else { mask_value },
+                                if enable_fields & 0b10 > 0 { total_stars } else { mask_value },
+                                if enable_fields & 0b100 > 0 { total_commits } else { mask_value },
+                                if enable_fields & 0b1000 > 0 { total_prs } else { mask_value },
+                                if enable_fields & 0b10000 > 0 { contributed_to } else { mask_value },
+                                if enable_fields & 0b100000 > 0 { total_issues } else { mask_value },
                                 query_param["rsaPubkey"].as_str().unwrap_or(""),
                                 SIGN_CLAIM_SGX_HOST
                             );
