@@ -31,6 +31,8 @@ impl DataConnector for GithubConnector {
         };
         match query_type_str {
             "github_user_stats_zk_claim" => {
+                let enable_fields: i64 = query_param["enableFields"].as_i64().unwrap_or(0b111111);
+                let mask_value: i64 = -1;
                 let query = format!(
                     "{{ \"query\": \"query {{ user(login: \\\"{}\\\") {{ name login contributionsCollection \
                      {{ totalCommitContributions restrictedContributionsCount }} repositoriesContributedTo( \
@@ -107,12 +109,12 @@ impl DataConnector for GithubConnector {
                                 HOST: {}\r\n\
                                 User-Agent: curl/7.79.1\r\n\
                                 Accept: */*\r\n\r\n",
-                                followers,
-                                total_stars,
-                                total_commits,
-                                total_prs,
-                                contributed_to,
-                                total_issues,
+                                if enable_fields & 0b1 { followers } else { mask_value },
+                                if enable_fields & 0b10 { total_stars } else { mask_value },
+                                if enable_fields & 0b100 { total_commits } else { mask_value },
+                                if enable_fields & 0b1000 { total_prs } else { mask_value },
+                                if enable_fields & 0b10000 { contributed_to } else { mask_value },
+                                if enable_fields & 0b100000 { total_issues } else { mask_value },
                                 query_param["rsaPubkey"].as_str().unwrap_or(""),
                                 SIGN_CLAIM_SGX_HOST
                             );
