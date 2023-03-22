@@ -1,5 +1,5 @@
 [package]
-name = "sibyl_plaid_data_connector"
+name = "sibyl_github_data_connector"
 version = "1.0.0"
 authors = ["Wentao XIAO"]
 edition = "2018"
