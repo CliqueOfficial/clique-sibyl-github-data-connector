@@ -6,7 +6,6 @@ use sibyl_base_data_connector::serde_json::Value;
 use std::str;
 use String;
 use std::panic;
-use std::time::*;
 // use std::untrusted::time::SystemTimeEx;
 use sibyl_base_data_connector::utils::{parse_result, tls_post};
 use sibyl_base_data_connector::utils::simple_tls_client;
@@ -70,7 +69,7 @@ impl DataConnector for GithubConnector {
                 match parse_result(&plaintext) {
                     Ok(resp_json) => {
                         result = match panic::catch_unwind(|| {
-                            let zero_value = json!(0);
+                            let zero_value = serde_json::to_value(0);
                             let empty_str_value = json!("");
                             let user_name: &Value = resp_json.pointer(
                                 "/data/user/name"
@@ -86,7 +85,7 @@ impl DataConnector for GithubConnector {
                             ).unwrap_or(&empty_list_value);
                             let mut total_stars: i64 = 0;
                             for repo in repos.as_array().unwrap_or(&empty_list_value.as_array().unwrap()) {
-                                total_stars += repo.pointer("/stargazers/totalCount").unwrap_or(&zero_value);
+                                total_stars += repo.pointer("/stargazers/totalCount").unwrap_or(&zero_value).as_i64().unwrap_or(0);
                             }
                             let total_commits: i64 = resp_json.pointer(
                                 "/data/user/contributionsCollection/totalCommitContributions"
