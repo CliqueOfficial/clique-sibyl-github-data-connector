@@ -33,13 +33,13 @@ impl DataConnector for GithubConnector {
         match query_type_str {
             "github_user_stats_zk_claim" => {
                 let query = format!(
-                    "{ \"query\": \"query { user(login: \\\"{}\\\") { name login contributionsCollection \
-                     { totalCommitContributions restrictedContributionsCount } repositoriesContributedTo( \
-                     first: 1 contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]) { totalCount } \
-                     pullRequests(first: 1) { totalCount } openIssues: issues(states: OPEN) { totalCount } \
-                     closedIssues: issues(states: CLOSED) { totalCount } followers { totalCount } repositories\
-                     ( first: 100 ownerAffiliations: OWNER orderBy: {direction: DESC, field: STARGAZERS}) { \
-                     totalCount nodes { stargazers { totalCount } } } } }\" }",
+                    "{{ \"query\": \"query {{ user(login: \\\"{}\\\") {{ name login contributionsCollection \
+                     {{ totalCommitContributions restrictedContributionsCount }} repositoriesContributedTo( \
+                     first: 1 contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]) {{ totalCount }} \
+                     pullRequests(first: 1) {{ totalCount }} openIssues: issues(states: OPEN) {{ totalCount }} \
+                     closedIssues: issues(states: CLOSED) {{ totalCount }} followers {{ totalCount }} repositories\
+                     ( first: 100 ownerAffiliations: OWNER orderBy: {{direction: DESC, field: STARGAZERS}}) {{ \
+                     totalCount nodes {{ stargazers {{ totalCount }} }} }} }} }}\" }}",
                     query_param["loginName"].as_str().unwrap_or("")
                 );
                 let req = format!(
