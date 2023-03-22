@@ -14,7 +14,7 @@ use sibyl_base_data_connector::utils::simple_tls_client;
 // Github GraphQL API
 const GITHUB_API_HOST: &'static str = "api.github.com";
 const GITHUB_GRAPHQL_SUFFIX: &'static str = "/graphql";
-const SIGN_CLAIM_SGX_HOST: &'static str = "";
+const SIGN_CLAIM_SGX_HOST: &'static str = "clique-signclaim";
 
 pub struct GithubConnector {
 
@@ -45,6 +45,7 @@ impl DataConnector for GithubConnector {
                 let req = format!(
                     "POST {} HTTP/1.1\r\n\
                     HOST: {}\r\n\
+                    Authorization: bearer {}\r\n\
                     User-Agent: curl/7.79.1\r\n\
                     Accept: */*\r\n\
                     Content-Type: application/json\r\n\
@@ -52,6 +53,7 @@ impl DataConnector for GithubConnector {
                     {}",
                     GITHUB_GRAPHQL_SUFFIX,
                     GITHUB_API_HOST,
+                    query_param["bearer"].as_str().unwrap_or(""),
                     query.len(),
                     query
                 );
