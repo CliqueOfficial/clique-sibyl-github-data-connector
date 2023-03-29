@@ -67,7 +67,6 @@ impl DataConnector for GithubConnector {
                                 return Err("err when encode_to_slice".to_string());
                             }
                         };
-                        let mut github_id_hex = format!("{:02x}", github_id);
                         githubIdHash = match str::from_utf8(&hash) {
                             Ok(r) => r.to_string(),
                             Err(e) => {
