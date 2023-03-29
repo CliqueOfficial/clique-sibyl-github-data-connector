@@ -130,7 +130,7 @@ impl DataConnector for GithubConnector {
                     Ok(resp_json) => {
                         result = match panic::catch_unwind(|| {
                             if let Some(errors) = resp_json.pointer("/errors") {
-                                panic!(format!("errors from github api: {}"))
+                                panic!(format!("errors from github api: {}", errors.to_string()));
                             }
                             let zero_value = json!(0i64);
                             let followers: i64 = resp_json.pointer(
