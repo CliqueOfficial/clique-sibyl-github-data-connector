@@ -43,8 +43,8 @@ impl DataConnector for GithubConnector {
                     GITHUB_API_HOST,
                     query_param["bearer"].as_str().unwrap_or("")
                 );
-                let mut github_id_hash: String;
-                let mut github_username: String;
+                let github_id_hash: String;
+                let github_username: String;
                 match simple_tls_client(GITHUB_API_HOST, &query_user, 443) {
                     Ok(r) => {
                         let github_id: i64 = match r["result"]["id"].as_i64() {
@@ -53,7 +53,7 @@ impl DataConnector for GithubConnector {
                                 return Err("user id not found when query github user by token".to_string());
                             }
                         };
-                        let mut github_id_hex = format!("{:02x}", github_id);
+                        let github_id_hex = format!("{:02x}", github_id);
                         let mut github_id_hex_len = github_id_hex.len() / 2;
                         if github_id_hex.len() % 2 == 1 {
                             github_id_hex_len += 1;
@@ -130,7 +130,6 @@ impl DataConnector for GithubConnector {
                     Ok(resp_json) => {
                         result = match panic::catch_unwind(|| {
                             let zero_value = json!(0i64);
-                            let empty_str_value = json!("");
                             let followers: i64 = resp_json.pointer(
                                 "/data/user/followers/totalCount"
                             ).unwrap_or(&zero_value).as_i64().unwrap_or(0);
