@@ -1,5 +1,4 @@
 use std::prelude::v1::*;
-use alloc::fmt::format;
 use sibyl_base_data_connector::base::DataConnector;
 use sibyl_base_data_connector::serde_json::json;
 use std::string::ToString;
@@ -131,7 +130,7 @@ impl DataConnector for GithubConnector {
                     Ok(resp_json) => {
                         result = match panic::catch_unwind(|| {
                             if let Some(errors) = resp_json.pointer("/errors") {
-                                panic!(format!("errors from github api: {}", errors.to_string()));
+                                panic!(format!("errors from github api: {}"))
                             }
                             let zero_value = json!(0i64);
                             let followers: i64 = resp_json.pointer(
