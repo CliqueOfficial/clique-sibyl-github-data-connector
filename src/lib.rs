@@ -5,5 +5,7 @@
 extern crate sgx_tstd as std;
 extern crate sibyl_base_data_connector;
 // extern crate serde_json;
+extern crate multihash;
+extern crate hex;
 
 pub mod github;

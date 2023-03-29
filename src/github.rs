@@ -2,6 +2,7 @@ use std::prelude::v1::*;
 use sibyl_base_data_connector::base::DataConnector;
 use sibyl_base_data_connector::serde_json::json;
 use std::string::ToString;
+use std::iter::IntoIterator;
 use sibyl_base_data_connector::serde_json::Value;
 use std::str;
 use String;
@@ -9,10 +10,12 @@ use std::panic;
 // use std::untrusted::time::SystemTimeEx;
 use sibyl_base_data_connector::utils::{parse_result, tls_post};
 use sibyl_base_data_connector::utils::simple_tls_client;
+use multihash::{Code, MultihashDigest};
 
 // Github GraphQL API
 const GITHUB_API_HOST: &'static str = "api.github.com";
 const GITHUB_GRAPHQL_SUFFIX: &'static str = "/graphql";
+const GITHUB_USER_SUFFIX: &'static str = "/user";
 const SIGN_CLAIM_SGX_HOST: &'static str = "clique-signclaim";
 
 pub struct GithubConnector {
@@ -31,7 +34,41 @@ impl DataConnector for GithubConnector {
         };
         match query_type_str {
             "github_user_stats_zk_claim" => {
-                let enable_fields: i64 = query_param["enableFields"].as_i64().unwrap_or(0b111111);
+                let queryUser = format!(
+                    "GET {} HTTP/1.1\r\n\
+                    HOST: {}\r\n\
+                    Authorization: token {}\r\n\
+                    User-Agent: curl/7.79.1\r\n\
+                    Accept: PostmanRuntime/7.31.3\r\n\r\n",
+                    GITHUB_USER_SUFFIX,
+                    GITHUB_API_HOST,
+                    query_param["bearer"].as_str().unwrap_or("")
+                );
+                let mut githubIdHash: String;
+                let mut githubUsername: String;
+                match simple_tls_client(GITHUB_API_HOST, &queryUser, 443) {
+                    Ok(r) => {
+                        let github_id: i64 = match r["result"]["id"].as_i64() {
+                            Some(id) => id,
+                            _ => {
+                                return Err("user id not found when query github user by token".to_string());
+                            }
+                        };
+                        let github_id_hex = format!("0x{:02x}", github_id);
+                        let hash = Code::Keccak256.digest(github_id_hex.as_bytes());
+                        githubIdHash = format!("0x{}", hex::encode(hash.digest()));
+                        githubUsername = match r["result"]["login"].as_str() {
+                            Some(name) => name.to_string(),
+                            _ => {
+                                return Err("login name not found when query github user by token".to_string());
+                            }
+                        }
+                    },
+                    Err(e) => {
+                        return Err(format!("error from simple_tls_client when query github user by token: {:?}", e));
+                    }
+                }
+                let enable_fields: &Value = query_param["enableFields"];
                 let mask_value: i64 = -1;
                 let query = format!(
                     "{{ \"query\": \"query {{ user(login: \\\"{}\\\") {{ name login contributionsCollection \
@@ -41,7 +78,7 @@ impl DataConnector for GithubConnector {
                      closedIssues: issues(states: CLOSED) {{ totalCount }} followers {{ totalCount }} repositories\
                      ( first: 100 ownerAffiliations: OWNER orderBy: {{direction: DESC, field: STARGAZERS}}) {{ \
                      totalCount nodes {{ stargazers {{ totalCount }} }} }} }} }}\" }}",
-                    query_param["loginName"].as_str().unwrap_or("")
+                    githubUsername
                 );
                 let req = format!(
                     "POST {} HTTP/1.1\r\n\
@@ -109,19 +146,19 @@ impl DataConnector for GithubConnector {
                                 HOST: {}\r\n\
                                 User-Agent: curl/7.79.1\r\n\
                                 Accept: */*\r\n\r\n",
-                                if enable_fields & 0b1 > 0 { followers } else { mask_value },
-                                if enable_fields & 0b10 > 0 { total_stars } else { mask_value },
-                                if enable_fields & 0b100 > 0 { total_commits } else { mask_value },
-                                if enable_fields & 0b1000 > 0 { total_prs } else { mask_value },
-                                if enable_fields & 0b10000 > 0 { contributed_to } else { mask_value },
-                                if enable_fields & 0b100000 > 0 { total_issues } else { mask_value },
+                                if enable_fields["followers"].as_bool().unwrap_or(false) { followers } else { mask_value },
+                                if enable_fields["total_stars"].as_bool().unwrap_or(false) { total_stars } else { mask_value },
+                                if enable_fields["total_commits"].as_bool().unwrap_or(false) { total_commits } else { mask_value },
+                                if enable_fields["total_prs"].as_bool().unwrap_or(false) { total_prs } else { mask_value },
+                                if enable_fields["contributed_to"].as_bool().unwrap_or(false) { contributed_to } else { mask_value },
+                                if enable_fields["total_issues"].as_bool().unwrap_or(false) { total_issues } else { mask_value },
                                 query_param["rsaPubkey"].as_str().unwrap_or(""),
                                 SIGN_CLAIM_SGX_HOST
                             );
                             let zk_range_proof = simple_tls_client(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
                             let zk: &Value = &zk_range_proof["result"];
                             return json!({
-                                "user": user_name,
+                                "userIdHash": userIdHash,
                                 "zk_claim": {
                                     "encryptedClaim": zk["encryptedClaim"].as_str().unwrap_or(""),
                                     "signature": zk["signature"].as_str().unwrap_or(""),
