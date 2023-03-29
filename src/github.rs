@@ -38,7 +38,7 @@ impl DataConnector for GithubConnector {
                     HOST: {}\r\n\
                     Authorization: token {}\r\n\
                     User-Agent: curl/7.79.1\r\n\
-                    Accept: PostmanRuntime/7.31.3\r\n\r\n",
+                    Accept: application/json\r\n\r\n",
                     GITHUB_USER_SUFFIX,
                     GITHUB_API_HOST,
                     query_param["bearer"].as_str().unwrap_or("")
