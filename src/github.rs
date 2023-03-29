@@ -99,7 +99,7 @@ impl DataConnector for GithubConnector {
                      closedIssues: issues(states: CLOSED) {{ totalCount }} followers {{ totalCount }} repositories\
                      ( first: 100 ownerAffiliations: OWNER orderBy: {{direction: DESC, field: STARGAZERS}}) {{ \
                      totalCount nodes {{ stargazers {{ totalCount }} }} }} }} }}\" }}",
-                    githubUsername
+                    github_username
                 );
                 let req = format!(
                     "POST {} HTTP/1.1\r\n\
@@ -174,7 +174,7 @@ impl DataConnector for GithubConnector {
                             let zk_range_proof = simple_tls_client(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
                             let zk: &Value = &zk_range_proof["result"];
                             return json!({
-                                "userIdHash": githubIdHash,
+                                "userIdHash": github_id_hash,
                                 "zk_claim": {
                                     "encryptedClaim": zk["encryptedClaim"].as_str().unwrap_or(""),
                                     "signature": zk["signature"].as_str().unwrap_or(""),
