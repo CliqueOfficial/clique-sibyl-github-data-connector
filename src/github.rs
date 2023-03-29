@@ -7,7 +7,6 @@ use sibyl_base_data_connector::serde_json::Value;
 use std::str;
 use String;
 use std::panic;
-use std::vec::Vec;
 // use std::untrusted::time::SystemTimeEx;
 use sibyl_base_data_connector::utils::{parse_result, tls_post};
 use sibyl_base_data_connector::utils::simple_tls_client;
