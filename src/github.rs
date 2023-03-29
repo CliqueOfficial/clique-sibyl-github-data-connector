@@ -7,6 +7,7 @@ use sibyl_base_data_connector::serde_json::Value;
 use std::str;
 use String;
 use std::panic;
+use std::vec::Vec;
 // use std::untrusted::time::SystemTimeEx;
 use sibyl_base_data_connector::utils::{parse_result, tls_post};
 use sibyl_base_data_connector::utils::simple_tls_client;
@@ -60,8 +61,15 @@ impl DataConnector for GithubConnector {
                         } else {
                             github_id_hex = "0x" + github_id_hex;
                         }
-                        let hash = Code::Keccak256.digest(github_id_hex.as_bytes());
-                        githubIdHash = format!("0x{}", hex::encode(hash.digest()));
+                        let mut hash = [0u8; 32];
+                        hex::encode_to_slice(Code::Keccak256.digest(github_id_hex.as_bytes()), &mut hash);
+                        githubIdHash = match str::from_utf8(&hash) {
+                            Ok(r) => r.to_string(),
+                            Err(e) => {
+                                return Err("err when from_utf7 for github_id_hash".to_string());
+                            }
+                        };
+                        githubIdHash = "0x".to_string() + githubIdHash;
                         githubUsername = match r["result"]["login"].as_str() {
                             Some(name) => name.to_string(),
                             _ => {
@@ -163,7 +171,7 @@ impl DataConnector for GithubConnector {
                             let zk_range_proof = simple_tls_client(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
                             let zk: &Value = &zk_range_proof["result"];
                             return json!({
-                                "userIdHash": userIdHash,
+                                "userIdHash": githubIdHash,
                                 "zk_claim": {
                                     "encryptedClaim": zk["encryptedClaim"].as_str().unwrap_or(""),
                                     "signature": zk["signature"].as_str().unwrap_or(""),
