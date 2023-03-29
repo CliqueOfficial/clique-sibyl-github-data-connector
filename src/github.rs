@@ -55,25 +55,30 @@ impl DataConnector for GithubConnector {
                             }
                         };
                         let mut github_id_hex = format!("{:02x}", github_id);
+                        let mut github_id_hex_len = github_id_hex.len() / 2;
                         if github_id_hex.len() % 2 == 1 {
-                            github_id_hex = format!("0x0{}", github_id_hex);
-                        } else {
-                            github_id_hex = format!("0x{}", github_id_hex);
+                            github_id_hex_len += 1;
+                        }
+                        let mut github_id_hex_bytes = vec![0u8; github_id_hex_len];
+                        match hex::decode_to_slice(github_id_hex, &mut github_id_hex_bytes).unwrap() {
+                            Ok(_) => (),
+                            Err(e) => {
+                                return Err("err when decode_to_slice".to_string());
+                            }
                         }
                         let mut hash = [0u8; 64];
-                        match hex::encode_to_slice(&Code::Keccak256.digest(github_id_hex.as_bytes()).digest(), &mut hash) {
+                        match hex::encode_to_slice(&Code::Keccak256.digest(&github_id_hex_bytes).digest(), &mut hash) {
                             Ok(_) => (),
                             Err(e) => {
                                 return Err("err when encode_to_slice".to_string());
                             }
-                        };
+                        }
                         githubIdHash = match str::from_utf8(&hash) {
-                            Ok(r) => r.to_string(),
+                            Ok(r) => format!("0x{}", r),
                             Err(e) => {
-                                return Err("err when from_utf7 for github_id_hash".to_string());
+                                return Err("err when from_utf8 for github_id_hash".to_string());
                             }
                         };
-                        githubIdHash = format!("0x{}", githubIdHash);
                         githubUsername = match r["result"]["login"].as_str() {
                             Some(name) => name.to_string(),
                             _ => {
