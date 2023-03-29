@@ -86,7 +86,7 @@ impl DataConnector for GithubConnector {
                         return Err(format!("error from simple_tls_client when query github user by token: {:?}", e));
                     }
                 }
-                let enable_fields: &Value = query_param["enableFields"];
+                let enable_fields: &Value = &query_param["enableFields"];
                 let mask_value: i64 = -1;
                 let query = format!(
                     "{{ \"query\": \"query {{ user(login: \\\"{}\\\") {{ name login contributionsCollection \
