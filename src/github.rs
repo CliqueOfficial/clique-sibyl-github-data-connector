@@ -2,7 +2,6 @@ use std::prelude::v1::*;
 use sibyl_base_data_connector::base::DataConnector;
 use sibyl_base_data_connector::serde_json::json;
 use std::string::ToString;
-use std::iter::IntoIterator;
 use sibyl_base_data_connector::serde_json::Value;
 use std::str;
 use String;
@@ -34,7 +33,7 @@ impl DataConnector for GithubConnector {
         };
         match query_type_str {
             "github_user_stats_zk_claim" => {
-                let queryUser = format!(
+                let query_user = format!(
                     "GET {} HTTP/1.1\r\n\
                     HOST: {}\r\n\
                     Authorization: token {}\r\n\
@@ -44,9 +43,9 @@ impl DataConnector for GithubConnector {
                     GITHUB_API_HOST,
                     query_param["bearer"].as_str().unwrap_or("")
                 );
-                let mut githubIdHash: String;
-                let mut githubUsername: String;
-                match simple_tls_client(GITHUB_API_HOST, &queryUser, 443) {
+                let mut github_id_hash: String;
+                let mut github_username: String;
+                match simple_tls_client(GITHUB_API_HOST, &query_user, 443) {
                     Ok(r) => {
                         let github_id: i64 = match r["result"]["id"].as_i64() {
                             Some(id) => id,
@@ -63,23 +62,23 @@ impl DataConnector for GithubConnector {
                         match hex::decode_to_slice(github_id_hex, &mut github_id_hex_bytes).unwrap() {
                             Ok(_) => (),
                             Err(e) => {
-                                return Err("err when decode_to_slice".to_string());
+                                return Err(format!("err when decode_to_slice: {:?}", e));
                             }
                         }
                         let mut hash = [0u8; 64];
                         match hex::encode_to_slice(&Code::Keccak256.digest(&github_id_hex_bytes).digest(), &mut hash) {
                             Ok(_) => (),
                             Err(e) => {
-                                return Err("err when encode_to_slice".to_string());
+                                return Err(format!("err when encode_to_slice: {:?}", e));
                             }
                         }
-                        githubIdHash = match str::from_utf8(&hash) {
+                        github_id_hash = match str::from_utf8(&hash) {
                             Ok(r) => format!("0x{}", r),
                             Err(e) => {
-                                return Err("err when from_utf8 for github_id_hash".to_string());
+                                return Err(format!("err when from_utf8 for github_id_hash: {:?}", e));
                             }
                         };
-                        githubUsername = match r["result"]["login"].as_str() {
+                        github_username = match r["result"]["login"].as_str() {
                             Some(name) => name.to_string(),
                             _ => {
                                 return Err("login name not found when query github user by token".to_string());
@@ -132,11 +131,6 @@ impl DataConnector for GithubConnector {
                         result = match panic::catch_unwind(|| {
                             let zero_value = json!(0i64);
                             let empty_str_value = json!("");
-                            let user_name: &Value = resp_json.pointer(
-                                "/data/user/name"
-                            ).unwrap_or(resp_json.pointer(
-                                "/data/user/login"
-                            ).unwrap_or(&empty_str_value));
                             let followers: i64 = resp_json.pointer(
                                 "/data/user/followers/totalCount"
                             ).unwrap_or(&zero_value).as_i64().unwrap_or(0);
