@@ -59,7 +59,7 @@ impl DataConnector for GithubConnector {
                             github_id_hex_len += 1;
                         }
                         let mut github_id_hex_bytes = vec![0u8; github_id_hex_len];
-                        match hex::decode_to_slice(github_id_hex, &mut github_id_hex_bytes).unwrap() {
+                        match hex::decode_to_slice(github_id_hex, &mut github_id_hex_bytes) {
                             Ok(_) => (),
                             Err(e) => {
                                 return Err(format!("err when decode_to_slice: {:?}", e));
