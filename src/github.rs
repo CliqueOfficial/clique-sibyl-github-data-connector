@@ -54,7 +54,12 @@ impl DataConnector for GithubConnector {
                                 return Err("user id not found when query github user by token".to_string());
                             }
                         };
-                        let github_id_hex = format!("0x{:02x}", github_id);
+                        let mut github_id_hex = format!("{:02x}", github_id);
+                        if github_id_hex.len() % 2 == 1 {
+                            github_id_hex = "0x0" + github_id_hex;
+                        } else {
+                            github_id_hex = "0x" + github_id_hex;
+                        }
                         let hash = Code::Keccak256.digest(github_id_hex.as_bytes());
                         githubIdHash = format!("0x{}", hex::encode(hash.digest()));
                         githubUsername = match r["result"]["login"].as_str() {
