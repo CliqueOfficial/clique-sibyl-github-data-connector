@@ -165,12 +165,12 @@ impl DataConnector for GithubConnector {
                                 User-Agent: curl/7.79.1\r\n\
                                 Accept: */*\r\n\r\n",
                                 if enable_fields["followers"].as_bool().unwrap_or(false) { followers } else { mask_value },
-                                if enable_fields["total_stars"].as_bool().unwrap_or(false) { total_stars } else { mask_value },
-                                if enable_fields["total_commits"].as_bool().unwrap_or(false) { total_commits } else { mask_value },
-                                if enable_fields["total_prs"].as_bool().unwrap_or(false) { total_prs } else { mask_value },
-                                if enable_fields["contributed_to"].as_bool().unwrap_or(false) { contributed_to } else { mask_value },
-                                if enable_fields["total_issues"].as_bool().unwrap_or(false) { total_issues } else { mask_value },
-                                query_param["rsaPubkey"].as_str().unwrap_or(""),
+                                if enable_fields["totalStars"].as_bool().unwrap_or(false) { total_stars } else { mask_value },
+                                if enable_fields["totalCommits"].as_bool().unwrap_or(false) { total_commits } else { mask_value },
+                                if enable_fields["totalPrs"].as_bool().unwrap_or(false) { total_prs } else { mask_value },
+                                if enable_fields["contributedTo"].as_bool().unwrap_or(false) { contributed_to } else { mask_value },
+                                if enable_fields["totalIssues"].as_bool().unwrap_or(false) { total_issues } else { mask_value },
+                                query_param["rsaPubKey"].as_str().unwrap_or(""),
                                 SIGN_CLAIM_SGX_HOST
                             );
                             let zk_range_proof = simple_tls_client(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
