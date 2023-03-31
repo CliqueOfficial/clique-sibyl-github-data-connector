@@ -53,10 +53,12 @@ impl DataConnector for GithubConnector {
                                 return Err("user id not found when query github user by token".to_string());
                             }
                         };
-                        let github_id_hex = format!("{:02x}", github_id);
+                        let mut github_id_hex = format!("{:02x}", github_id);
                         let mut github_id_hex_len = github_id_hex.len() / 2;
                         if github_id_hex.len() % 2 == 1 {
                             github_id_hex_len += 1;
+                            // for length of github_id_hex is odd, pad a prefix of zero
+                            github_id_hex = format!("0{}", github_id_hex);
                         }
                         let mut github_id_hex_bytes = vec![0u8; github_id_hex_len];
                         match hex::decode_to_slice(github_id_hex, &mut github_id_hex_bytes) {
