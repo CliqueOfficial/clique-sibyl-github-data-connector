@@ -8,7 +8,7 @@ use String;
 use std::panic;
 // use std::untrusted::time::SystemTimeEx;
 use sibyl_base_data_connector::utils::{parse_result, tls_post};
-use sibyl_base_data_connector::utils::simple_tls_client;
+use sibyl_base_data_connector::utils::{simple_tls_client, simple_tls_client_no_cert_check};
 use multihash::{Code, MultihashDigest};
 
 // Github GraphQL API
@@ -132,7 +132,7 @@ impl DataConnector for GithubConnector {
                     Ok(resp_json) => {
                         result = match panic::catch_unwind(|| {
                             if let Some(errors) = resp_json.pointer("/errors") {
-                                panic!(format!("errors from github api: {}", errors.to_string()));
+                                panic!("errors from github api: {}", errors.to_string());
                             }
                             let zero_value = json!(0i64);
                             let followers: i64 = resp_json.pointer(
@@ -175,7 +175,7 @@ impl DataConnector for GithubConnector {
                                 query_param["rsaPubKey"].as_str().unwrap_or(""),
                                 SIGN_CLAIM_SGX_HOST
                             );
-                            let zk_range_proof = simple_tls_client(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
+                            let zk_range_proof = simple_tls_client_no_cert_check(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
                             let zk: &Value = &zk_range_proof["result"];
                             return json!({
                                 "userIdHash": github_id_hash,

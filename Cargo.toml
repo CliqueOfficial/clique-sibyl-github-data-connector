@@ -10,7 +10,7 @@ include = ["src/**/*.rs", "README.md"]
 [dependencies]
 #sgx_tstd    = { git = "https://github.com/apache/teaclave-sgx-sdk.git", optional = true, features = ["net", "untrusted_time"], tag = "v1.1.5" }
 #serde_json       = { git = "https://github.com/mesalock-linux/serde-json-sgx" }
-#sibyl_base_data_connector = { git = "ssh://git@github.com/CliqueOfficial/SibylBaseDataConnector.git", rev = "d1e0f45" }
+#sibyl_base_data_connector = { git = "ssh://git@github.com/CliqueOfficial/SibylBaseDataConnector.git", rev = "120bfcf" }
 multihash = { version = "0.18.0", default-features = false, features = ["multihash-impl", "sha3"] }
 hex = { version = "0.4", default-features = false }
 
