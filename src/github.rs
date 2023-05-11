@@ -3,7 +3,7 @@ use sibyl_base_data_connector::base::DataConnector;
 use sibyl_base_data_connector::serde_json::json;
 use std::string::ToString;
 use sibyl_base_data_connector::serde_json::Value;
-use std::str;
+use std::{str, println};
 use String;
 use std::panic;
 // use std::untrusted::time::SystemTimeEx;
@@ -54,13 +54,35 @@ impl DataConnector for GithubConnector {
                 }))
             },
             "github_user_stats_zk_halo2" => {
-                let encrypted_secret: Vec<u8> = query_param["encryptedBearer"].as_array().unwrap().iter().map(
-                    |x| x.as_u64().unwrap() as u8
+                let encrypted_secret_res: Vec<u8> = query_param["encryptedBearer"].as_array();
+                if encrypted_secret_res.is_err() {
+                    return Ok(json!({
+                        "result": "fail",
+                        "reason": "encryptedBearer is not array"
+                    }));
+                }
+                let encrypted_secret = encrypted_secret_res.unwrap().iter().map(
+                    |x| x.as_u64().unwrap_or(0u64) as u8
                 ).collect();
                 let rsa_key = Arc::clone(&*RSA_PRIVATE_KEY);
-                let dec_data = rsa_key.decrypt(
-                    PaddingScheme::PKCS1v15, &encrypted_secret).expect("failed to decrypt");
-                let secret = std::str::from_utf8(&dec_data).unwrap();
+                let dec_data_res = rsa_key.decrypt(
+                    PaddingScheme::PKCS1v15, &encrypted_secret);
+                if dec_data_res.is_err() {
+                    return Ok(json!({
+                        "result": "fail",
+                        "reason": "decrypt github Bearer failed!"
+                    }));
+                }
+                let dec_data = dec_data_res.unwrap();
+                let secret_res = std::str::from_utf8(&dec_data);
+                if secret_res.is_err() {
+                    return Ok(json!({
+                        "result": "fail",
+                        "reason": "decrypt github Bearer failed!"
+                    }));
+                }
+                let secret = secret_res.unwrap();
+                println!("github secret: {:?}", secret);
                 let query_user = format!(
                     "GET {} HTTP/1.1\r\n\
                     HOST: {}\r\n\
