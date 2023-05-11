@@ -54,14 +54,14 @@ impl DataConnector for GithubConnector {
                 }))
             },
             "github_user_stats_zk_halo2" => {
-                let encrypted_secret_res: Vec<u8> = query_param["encryptedBearer"].as_array();
+                let encrypted_secret_res = query_param["encryptedBearer"].as_array();
                 if encrypted_secret_res.is_err() {
                     return Ok(json!({
                         "result": "fail",
                         "reason": "encryptedBearer is not array"
                     }));
                 }
-                let encrypted_secret = encrypted_secret_res.unwrap().iter().map(
+                let encrypted_secret: Vec<u8> = encrypted_secret_res.unwrap().iter().map(
                     |x| x.as_u64().unwrap_or(0u64) as u8
                 ).collect();
                 let rsa_key = Arc::clone(&*RSA_PRIVATE_KEY);
