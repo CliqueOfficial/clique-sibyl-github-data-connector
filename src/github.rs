@@ -140,8 +140,6 @@ impl DataConnector for GithubConnector {
                         return Err(format!("error from simple_tls_client when query github user by token: {:?}", e));
                     }
                 }
-                let enable_fields: &Value = &query_param["enableFields"];
-                let mask_value: i64 = -1;
                 let query = format!(
                     "{{ \"query\": \"query {{ user(login: \\\"{}\\\") {{ name login contributionsCollection \
                      {{ totalCommitContributions restrictedContributionsCount }} repositoriesContributedTo( \
@@ -212,12 +210,12 @@ impl DataConnector for GithubConnector {
                             let lower = query_param["lower"].as_i64().unwrap_or(0i64);
                             let upper = query_param["upper"].as_i64().unwrap_or(100i64);
                             let values = [
-                                if enable_fields["followers"].as_bool().unwrap_or(false) { followers } else { mask_value },
-                                if enable_fields["totalStars"].as_bool().unwrap_or(false) { total_stars } else { mask_value },
-                                if enable_fields["totalCommits"].as_bool().unwrap_or(false) { total_commits } else { mask_value },
-                                if enable_fields["totalPrs"].as_bool().unwrap_or(false) { total_prs } else { mask_value },
-                                if enable_fields["contributedTo"].as_bool().unwrap_or(false) { contributed_to } else { mask_value },
-                                if enable_fields["totalIssues"].as_bool().unwrap_or(false) { total_issues } else { mask_value },
+                                followers,
+                                total_stars,
+                                total_commits,
+                                total_prs,
+                                contributed_to,
+                                total_issues,
                             ];
                             let req = format!(
                                 "GET /zkRangeProof?data0={}&data1={}&data2={}&data3={}&data4={}&data5={}&data_slot={}&lower={}&upper={} HTTP/1.1\r\n\
