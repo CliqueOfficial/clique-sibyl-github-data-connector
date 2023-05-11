@@ -55,7 +55,7 @@ impl DataConnector for GithubConnector {
             },
             "github_user_stats_zk_halo2" => {
                 let encrypted_secret_res = query_param["encryptedBearer"].as_array();
-                if encrypted_secret_res.is_err() {
+                if encrypted_secret_res.is_none() {
                     return Ok(json!({
                         "result": "fail",
                         "reason": "encryptedBearer is not array"
