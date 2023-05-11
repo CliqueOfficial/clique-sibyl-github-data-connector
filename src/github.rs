@@ -159,9 +159,9 @@ impl DataConnector for GithubConnector {
                             let total_closed_issues: &Value = resp_json.pointer("/data/user/closedIssues/totalCount").unwrap_or(&zero_value);
                             let total_issues: i64 = total_open_issues.as_i64().unwrap_or(0) + total_closed_issues.as_i64().unwrap_or(0);
 
-                            let data_slot = query_param["dataSlot"].as_i64().unwrap_or("");
-                            let lower = query_param["lower"].as_i64().unwrap_or("");
-                            let upper = query_param["upper"].as_i64().unwrap_or("");
+                            let data_slot = query_param["dataSlot"].as_i64().unwrap_or(0i64) as usize;
+                            let lower = query_param["lower"].as_i64().unwrap_or(0i64);
+                            let upper = query_param["upper"].as_i64().unwrap_or(100i64);
                             let values = [
                                 if enable_fields["followers"].as_bool().unwrap_or(false) { followers } else { mask_value },
                                 if enable_fields["totalStars"].as_bool().unwrap_or(false) { total_stars } else { mask_value },
