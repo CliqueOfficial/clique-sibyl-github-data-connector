@@ -10,6 +10,17 @@ use std::panic;
 use sibyl_base_data_connector::utils::{parse_result, tls_post};
 use sibyl_base_data_connector::utils::{simple_tls_client, simple_tls_client_no_cert_check};
 use multihash::{Code, MultihashDigest};
+use once_cell::sync::Lazy;
+use std::sync::Arc;
+use rsa::{RSAPrivateKey, PaddingScheme};
+
+static RSA_PRIVATE_KEY: Lazy<Arc<RSAPrivateKey>> = Lazy::new(|| {
+    let mut rng = rand::rngs::OsRng::default();
+    let bits = 2048;
+    let key = RSAPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
+
+    Arc::new(key)
+});
 
 // Github GraphQL API
 const GITHUB_API_HOST: &'static str = "api.github.com";
@@ -32,7 +43,24 @@ impl DataConnector for GithubConnector {
             }
         };
         match query_type_str {
+            "github_get_rsa_public_key" => {
+                let mut reason = "".to_string();
+                let pub_key = Arc::clone(&*RSA_PRIVATE_KEY).to_public_key();
+                // for simplicity, just use Debug trait in RSA Public Key to serialize instead of PEM format.
+                let result: Value = json!(format!("{:?}", pub_key));
+                Ok(json!({
+                    "result": result,
+                    "reason": reason
+                }))
+            },
             "github_user_stats_zk_halo2" => {
+                let encrypted_secret: Vec<u8> = query_param["encryptedBearer"].as_array().unwrap().iter().map(
+                    |x| x.as_u64().unwrap() as u8
+                ).collect();
+                let rsa_key = Arc::clone(&*RSA_PRIVATE_KEY);
+                let dec_data = rsa_key.decrypt(
+                    PaddingScheme::PKCS1v15, &encrypted_secret).expect("failed to decrypt");
+                let secret = std::str::from_utf8(&dec_data).unwrap();
                 let query_user = format!(
                     "GET {} HTTP/1.1\r\n\
                     HOST: {}\r\n\
@@ -41,7 +69,7 @@ impl DataConnector for GithubConnector {
                     Accept: application/json\r\n\r\n",
                     GITHUB_USER_SUFFIX,
                     GITHUB_API_HOST,
-                    query_param["bearer"].as_str().unwrap_or("")
+                    secret
                 );
                 let github_id_hash: String;
                 let github_username: String;

@@ -7,5 +7,8 @@ extern crate sibyl_base_data_connector;
 // extern crate serde_json;
 extern crate multihash;
 extern crate hex;
+extern crate rsa;
+extern crate once_cell;
+extern crate rand;
 
 pub mod github;
