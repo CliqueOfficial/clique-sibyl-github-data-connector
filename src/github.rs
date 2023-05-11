@@ -82,7 +82,6 @@ impl DataConnector for GithubConnector {
                     }));
                 }
                 let secret = secret_res.unwrap();
-                println!("github secret: {:?}", secret);
                 let query_user = format!(
                     "GET {} HTTP/1.1\r\n\
                     HOST: {}\r\n\
@@ -164,7 +163,7 @@ impl DataConnector for GithubConnector {
                     {}",
                     GITHUB_GRAPHQL_SUFFIX,
                     GITHUB_API_HOST,
-                    query_param["bearer"].as_str().unwrap_or(""),
+                    secret,
                     query.len(),
                     query
                 );
