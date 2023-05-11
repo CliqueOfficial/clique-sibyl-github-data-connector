@@ -217,7 +217,6 @@ impl DataConnector for GithubConnector {
                                 contributed_to,
                                 total_issues,
                             ];
-                            println!("###### {:?} {:?} {:?} {:?}", values, data_slot, lower, upper);
                             let req = format!(
                                 "GET /zkRangeProof?data0={}&data1={}&data2={}&data3={}&data4={}&data5={}&data_slot={}&lower={}&upper={} HTTP/1.1\r\n\
                                 HOST: {}\r\n\
