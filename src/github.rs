@@ -268,7 +268,7 @@ impl DataConnector for GithubConnector {
                 let mut secret = query_param["bearer"].as_str().unwrap_or("");
                 let encrypted_secret_res = query_param["encryptedBearer"].as_str();
                 if encrypted_secret_res.is_some() {
-                    let encrypted_secret = base64::decode(encrypted_secret_res);
+                    let encrypted_secret = base64::decode(encrypted_secret_res.unwrap());
                     if encrypted_secret.is_err() {
                         return Ok(json!({
                             "result": "fail",
