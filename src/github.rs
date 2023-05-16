@@ -17,7 +17,7 @@ use rsa::{RSAPrivateKey, PaddingScheme};
 static RSA_PRIVATE_KEY: Lazy<Arc<RSAPrivateKey>> = Lazy::new(|| {
     // let mut rng = rand::rngs::OsRng::default();
     let seed = [0u8; 16];
-    let mut rng = rand::rngs::SmallRng::from_seed(seed);
+    let mut rng = rand::rngs::mock::StepRng::new(0, 1);
     let bits = 2048;
     let key = RSAPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
 
