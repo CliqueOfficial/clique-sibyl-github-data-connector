@@ -265,6 +265,35 @@ impl DataConnector for GithubConnector {
                 }))
             },
             "github_user_stats_zk_claim" => {
+                let mut secret = query_param["bearer"].as_str().unwrap_or("");
+                let encrypted_secret_res = query_param["encryptedBearer"].as_str();
+                if encrypted_secret_res.is_some() {
+                    let encrypted_secret = base64::decode(encrypted_secret_res);
+                    if encrypted_secret.is_err() {
+                        return Ok(json!({
+                            "result": "fail",
+                            "reason": "base64 decode github encryptedBearer failed!"
+                        }));
+                    }
+                    let rsa_key = Arc::clone(&*RSA_PRIVATE_KEY);
+                    let dec_data_res = rsa_key.decrypt(
+                        PaddingScheme::PKCS1v15, &encrypted_secret.unwrap());
+                    if dec_data_res.is_err() {
+                        return Ok(json!({
+                            "result": "fail",
+                            "reason": "decrypt github Bearer failed!"
+                        }));
+                    }
+                    let dec_data = dec_data_res.unwrap();
+                    let secret_res = std::str::from_utf8(&dec_data);
+                    if secret_res.is_err() {
+                        return Ok(json!({
+                            "result": "fail",
+                            "reason": "decrypt github Bearer failed!"
+                        }));
+                    }
+                    secret = secret_res.unwrap();
+                }
                 let query_user = format!(
                     "GET {} HTTP/1.1\r\n\
                     HOST: {}\r\n\
@@ -273,7 +302,7 @@ impl DataConnector for GithubConnector {
                     Accept: application/json\r\n\r\n",
                     GITHUB_USER_SUFFIX,
                     GITHUB_API_HOST,
-                    query_param["bearer"].as_str().unwrap_or("")
+                    secret
                 );
                 let github_id_hash: String;
                 let github_username: String;
@@ -346,7 +375,7 @@ impl DataConnector for GithubConnector {
                     {}",
                     GITHUB_GRAPHQL_SUFFIX,
                     GITHUB_API_HOST,
-                    query_param["bearer"].as_str().unwrap_or(""),
+                    secret,
                     query.len(),
                     query
                 );
