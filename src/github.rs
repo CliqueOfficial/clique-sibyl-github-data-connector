@@ -292,7 +292,7 @@ impl DataConnector for GithubConnector {
                             "reason": "decrypt github Bearer failed!"
                         }));
                     }
-                    secret = secret_res.unwrap();
+                    secret = secret_res.unwrap().clone();
                 }
                 let query_user = format!(
                     "GET {} HTTP/1.1\r\n\
