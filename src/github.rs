@@ -56,34 +56,36 @@ impl DataConnector for GithubConnector {
                 }))
             },
             "github_user_stats_zk_halo2" => {
-                let encrypted_secret_res = query_param["encryptedBearer"].as_array();
-                if encrypted_secret_res.is_none() {
-                    return Ok(json!({
-                        "result": "fail",
-                        "reason": "encryptedBearer is not array"
-                    }));
+                let mut secret = query_param["bearer"].as_str().unwrap_or("");
+                let mut dec_data = vec![];
+                let encrypted_secret_res = query_param["encryptedBearer"].as_str();
+                if encrypted_secret_res.is_some() {
+                    let encrypted_secret = base64::decode(encrypted_secret_res.unwrap());
+                    if encrypted_secret.is_err() {
+                        return Ok(json!({
+                            "result": "fail",
+                            "reason": "base64 decode github encryptedBearer failed!"
+                        }));
+                    }
+                    let rsa_key = Arc::clone(&*RSA_PRIVATE_KEY);
+                    let dec_data_res = rsa_key.decrypt(
+                        PaddingScheme::PKCS1v15, &encrypted_secret.unwrap());
+                    if dec_data_res.is_err() {
+                        return Ok(json!({
+                            "result": "fail",
+                            "reason": "decrypt github Bearer failed!"
+                        }));
+                    }
+                    dec_data = dec_data_res.unwrap();
+                    let secret_res = std::str::from_utf8(&dec_data);
+                    if secret_res.is_err() {
+                        return Ok(json!({
+                            "result": "fail",
+                            "reason": "decrypt github Bearer failed!"
+                        }));
+                    }
+                    secret = secret_res.unwrap();
                 }
-                let encrypted_secret: Vec<u8> = encrypted_secret_res.unwrap().iter().map(
-                    |x| x.as_u64().unwrap_or(0u64) as u8
-                ).collect();
-                let rsa_key = Arc::clone(&*RSA_PRIVATE_KEY);
-                let dec_data_res = rsa_key.decrypt(
-                    PaddingScheme::PKCS1v15, &encrypted_secret);
-                if dec_data_res.is_err() {
-                    return Ok(json!({
-                        "result": "fail",
-                        "reason": "decrypt github Bearer failed!"
-                    }));
-                }
-                let dec_data = dec_data_res.unwrap();
-                let secret_res = std::str::from_utf8(&dec_data);
-                if secret_res.is_err() {
-                    return Ok(json!({
-                        "result": "fail",
-                        "reason": "decrypt github Bearer failed!"
-                    }));
-                }
-                let secret = secret_res.unwrap();
                 let query_user = format!(
                     "GET {} HTTP/1.1\r\n\
                     HOST: {}\r\n\
