@@ -211,8 +211,6 @@ impl DataConnector for GithubConnector {
                             let total_issues: i64 = total_open_issues.as_i64().unwrap_or(0) + total_closed_issues.as_i64().unwrap_or(0);
 
                             let data_slot = query_param["dataSlot"].as_i64().unwrap_or(0i64) as usize;
-                            let lower = query_param["lower"].as_i64().unwrap_or(0i64);
-                            let upper = query_param["upper"].as_i64().unwrap_or(100i64);
                             let values = [
                                 followers,
                                 total_stars,
@@ -222,7 +220,7 @@ impl DataConnector for GithubConnector {
                                 total_issues,
                             ];
                             let req = format!(
-                                "GET /zkRangeProof?data0={}&data1={}&data2={}&data3={}&data4={}&data5={}&data_slot={}&lower={}&upper={} HTTP/1.1\r\n\
+                                "GET /zkRangeProof?data0={}&data1={}&data2={}&data3={}&data4={}&data5={}&data_slot={} HTTP/1.1\r\n\
                                 HOST: {}\r\n\
                                 User-Agent: curl/7.79.1\r\n\
                                 Accept: */*\r\n\r\n",
@@ -233,21 +231,15 @@ impl DataConnector for GithubConnector {
                                 values[4],
                                 values[5],
                                 data_slot,
-                                lower,
-                                upper,
                                 SIGN_CLAIM_SGX_HOST
                             );
                             let empty_arr: Vec<Value> = vec![];
-                            let in_range = values[data_slot] <= upper && values[data_slot] >= lower;
                             let zk_range_proof = simple_tls_client_no_cert_check(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
                             let zk: &Value = &zk_range_proof["result"];
                             return json!({
                                 "userIdHash": github_id_hash,
-                                "result": in_range,
-                                "zk_range_proof": {
-                                    "proof": zk["proof"].as_array().unwrap_or(&empty_arr),
-                                    "attestation": zk["attestation"].as_str().unwrap_or("")
-                                }
+                                "zkProof": zk["proof"].as_array().unwrap_or(&empty_arr),
+                                "innerAttestation": zk["attestation"].as_str().unwrap_or("")
                             });
                         }) {
                             Ok(r) => r,
