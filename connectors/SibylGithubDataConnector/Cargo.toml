@@ -1,0 +1,15 @@
+[package]
+name = "sibyl_github_data_connector"
+version = "1.0.0"
+edition = "2018"
+license = "MIT"
+readme = "README.md"
+include = ["src/**/*.rs", "README.md"]
+
+[dependencies]
+multihash = { version = "0.18.0", default-features = false, features = ["multihash-impl", "sha3"] }
+hex = { version = "0.4", default-features = false }
+
+[features]
+default = ["mesalock_sgx"]
+mesalock_sgx = []

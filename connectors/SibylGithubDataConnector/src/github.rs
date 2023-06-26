@@ -6,7 +6,6 @@ use sibyl_base_data_connector::serde_json::Value;
 use std::{str, println};
 use String;
 use std::panic;
-// use std::untrusted::time::SystemTimeEx;
 use sibyl_base_data_connector::utils::{parse_result, tls_post};
 use sibyl_base_data_connector::utils::{simple_tls_client, simple_tls_client_no_cert_check};
 use multihash::{Code, MultihashDigest};
@@ -15,7 +14,6 @@ use std::sync::Arc;
 use rsa::{RSAPrivateKey, PaddingScheme};
 
 static RSA_PRIVATE_KEY: Lazy<Arc<RSAPrivateKey>> = Lazy::new(|| {
-    // let mut rng = rand::rngs::OsRng::default();
     let seed = [0u8; 16];
     let mut rng = rand::rngs::mock::StepRng::new(0, 1);
     let bits = 2048;

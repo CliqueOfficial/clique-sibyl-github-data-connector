@@ -1,0 +1,10 @@
+FROM clique/sibyl-dcsv2-mtls-service
+COPY . /sgx/samplecode/SibylDataConnectors
+COPY ./id_ed25519 /root/.ssh/id_ed25519
+RUN bash -c "cd /sgx/samplecode/Sibyl && node scripts/main.mjs /sgx/samplecode/SibylDataConnectors/sibyl.toml /sgx/samplecode/SibylPrebuild"
+RUN bash -c "cd /sgx/samplecode/Sibyl/sibyl && source /opt/sgxsdk/environment && source /root/.cargo/env && make clean && make"
+RUN rm /root/.ssh/id_ed25519
+RUN rm -rf /sgx/samplecode/SibylDataConnectors
+WORKDIR /sgx/samplecode/Sibyl/bin/
+EXPOSE 3443
+CMD bash -c "env LD_LIBRARY_PATH=/opt/intel/sgx-aesm-service/aesm/ /opt/intel/sgx-aesm-service/aesm/aesm_service; cd /sgx/samplecode/Sibyl/sibyl/bin/ && ./sibyl_service"
