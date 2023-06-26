@@ -104,3 +104,13 @@ To establish a TLS channel, we need a CA and generates a client cert for mutual 
 Then Sibyl will run and listen on port 3443.
 
 > For Azure VMs, custom DCAP service is only avaiable for DCsv2 and is not supported in DCsv3.
+
+## Test
+
+```bash
+curl -k --location 'https://localhost:3443/query' --key ./cert/client.pkcs8 --cert ./cert/client.crt \
+--header 'Content-Type: application/json' \
+--data '{
+    "query_type": "github_get_rsa_public_key"
+}'
+```
