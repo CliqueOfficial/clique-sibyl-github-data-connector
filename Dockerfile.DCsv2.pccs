@@ -1,0 +1,10 @@
+FROM baiduxlab/sgx-rust@sha256:fbf4b495a0433ee2ef45ae9780b05d2f181aa6bbbe16dd0cf9ab5b4059ff15a5
+RUN bash -c "wget -qO - https://download.01.org/intel-sgx/sgx_repo/ubuntu/intel-sgx-deb.key | apt-key add -"
+RUN apt update && apt install -y libsgx-dcap-quote-verify=1.14.100.3-bionic1 libsgx-dcap-quote-verify-dev=1.14.100.3-bionic1 libsgx-dcap-default-qpl=1.14.100.3-bionic1 libsgx-dcap-default-qpl-dev=1.14.100.3-bionic1 libsgx-dcap-ql=1.14.100.3-bionic1 libsgx-dcap-ql-dev=1.14.100.3-bionic1 sgx-pck-id-retrieval-tool=1.14.100.3-bionic1
+RUN cd /tmp && curl -o setup.sh -sL https://deb.nodesource.com/setup_14.x && chmod a+x setup.sh && ./setup.sh
+RUN apt-get -y install nodejs sqlite3 python build-essential cracklib-runtime dkms
+RUN mkdir /etc/init
+RUN bash -c 'apt install -y sgx-dcap-pccs=1.14.100.3-bionic1 < <(printf "Y\n\n\nY\n8081\nN\ne0dd86294fb54b109e4ce6961af4b952\nLAZY\n97294597\n97294597\n97294597\n97294597\nY\nUS\nNY\nNY\nClique2046\n\n\nxwt97294597@gmail.com\n97294597\n\n")'
+EXPOSE 8081
+WORKDIR /opt/intel/sgx-dcap-pccs
+CMD ["node", "-r", "esm", "pccs_server.js"]

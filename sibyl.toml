@@ -1,0 +1,2 @@
+[connectors]
+sibyl_github_data_connector = { path = "./connectors/SibylGithubDataConnector" }

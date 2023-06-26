@@ -1,0 +1,31 @@
+version: "3.1"
+services:
+  clique-pccs:
+    image: pccs
+    hostname: clique-pccs
+    ports:
+      - 8081:8081
+    devices:
+      - /dev/sgx/enclave
+      - /dev/sgx/provision
+    networks:
+      - resolute
+    restart: always
+
+  sibyl:
+    image: sibyl
+    ports:
+      - 3443:3443
+    depends_on:
+      - clique-pccs
+    devices:
+      - /dev/sgx/enclave
+      - /dev/sgx/provision
+    networks:
+      - resolute
+    restart: always
+
+networks:
+  resolute:
+    external:
+      name: resolute
