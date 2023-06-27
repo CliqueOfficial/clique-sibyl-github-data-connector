@@ -1,4 +1,4 @@
-FROM clique/sibyl-dcsv2-mtls-service
+FROM public.ecr.aws/s4e0j1b8/clique-sibyl-dcsv2-mtls-service
 COPY . /sgx/samplecode/SibylDataConnectors
 COPY ./id_ed25519 /root/.ssh/id_ed25519
 RUN bash -c "cd /sgx/samplecode/Sibyl && node scripts/main.mjs /sgx/samplecode/SibylDataConnectors/sibyl.toml /sgx/samplecode/SibylPrebuild"
