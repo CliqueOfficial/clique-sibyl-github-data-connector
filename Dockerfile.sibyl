@@ -1,10 +1,8 @@
-FROM public.ecr.aws/clique/clique-sibyl-service:1.0 AS BUILDER
+FROM public.ecr.aws/clique/clique-sibyl-service:1.0.0 AS BUILDER
 COPY . /sgx/samplecode/SibylDataConnectors
 RUN bash -c "$BUILD"
 RUN rm -rf /sgx/samplecode/SibylDataConnectors
 
 
-FROM public.ecr.aws/clique/clique-sibyl-service:1.0
+FROM public.ecr.aws/clique/clique-sibyl-service:1.0.0
 COPY --from=BUILDER /sgx /sgx
-EXPOSE 3443
-CMD 0.0.0.0:3443

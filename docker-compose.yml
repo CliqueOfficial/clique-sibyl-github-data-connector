@@ -2,9 +2,14 @@ version: "3.1"
 services:
   sibyl:
     image: sibyl
-    ports:
-      - 3443:3443
     devices:
       - /dev/sgx/enclave
       - /dev/sgx/provision
     restart: always
+    ports:
+      - 3443:3443
+    command:
+      - "--addr"
+      - "0.0.0.0:3443"
+      - "--maxconn"
+      - "128"
