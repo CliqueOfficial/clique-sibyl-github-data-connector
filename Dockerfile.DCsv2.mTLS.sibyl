@@ -6,5 +6,3 @@ RUN rm -rf /sgx/samplecode/SibylDataConnectors
 
 FROM public.ecr.aws/clique/clique-sibyl-dcsv2-mtls-service:1.0.0
 COPY --from=BUILDER /sgx /sgx
-EXPOSE 3443
-CMD  ["--addr", "0.0.0.0:3443", "--maxconn", "128"]
