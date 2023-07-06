@@ -11,7 +11,7 @@ use sibyl_base_data_connector::utils::{simple_tls_client, simple_tls_client_no_c
 use multihash::{Code, MultihashDigest};
 use once_cell::sync::Lazy;
 use std::sync::Arc;
-use rsa::{RSAPrivateKey, PaddingScheme, RSAPublicKey, PublicKey};
+use rsa::{RSAPrivateKey, PaddingScheme, RSAPublicKey};
 use std::str::FromStr;
 
 static RSA_PRIVATE_KEY: Lazy<Arc<RSAPrivateKey>> = Lazy::new(|| {
@@ -259,7 +259,7 @@ impl DataConnector for GithubConnector {
                             let rsa_pub_key = RSAPublicKey::new(
                                 rsa::BigUint::from_str(query_param["rsaPubKeyN"].as_str().unwrap()).unwrap(),
                                 rsa::BigUint::from_str(query_param["rsaPubKeyE"].as_str().unwrap()).unwrap()
-                            );
+                            ).unwrap();
                             let mut rng = rand::rngs::mock::StepRng::new(0, 1);
                             let encrypted_claim: Vec<u8> = rsa_pub_key.encrypt(&mut rng, PaddingScheme::PKCS1v15, &encoded).unwrap();
                             let claim_str = base64::encode(&encrypted_claim);
