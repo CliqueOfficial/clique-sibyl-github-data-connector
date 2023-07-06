@@ -256,10 +256,10 @@ impl DataConnector for GithubConnector {
                                 if enable_fields["contributedTo"].as_bool().unwrap_or(false) { contributed_to } else { mask_value },
                                 if enable_fields["totalIssues"].as_bool().unwrap_or(false) { total_issues } else { mask_value },
                             ];
-                            let encoded: Vec<u8> = fields.iter().map(|x| (x as i32).to_be_bytes()).flatten().collect_vec();
+                            let encoded: Vec<u8> = fields.iter().map(|x| (*x as i32).to_be_bytes()).flatten().collect::<Vec<u8>>();
                             let rsa_pub_key = RSAPublicKey {
-                                n: BigUint::from_str(query_param["rsaPubKeyN"].as_str()).unwrap(),
-                                e: BigUint::from_str(query_param["rsaPubKeyE"].as_str()).unwrap()
+                                n: rsa::BigUint::from_str(query_param["rsaPubKeyN"].as_str().unwrap()).unwrap(),
+                                e: rsa::BigUint::from_str(query_param["rsaPubKeyE"].as_str().unwrap()).unwrap()
                             };
                             let seed = [0u8; 16];
                             let mut rng = rand::rngs::mock::StepRng::new(0, 1);
