@@ -12,11 +12,10 @@ use multihash::{Code, MultihashDigest};
 use once_cell::sync::Lazy;
 use std::sync::Arc;
 use rsa::{RSAPrivateKey, PaddingScheme, RSAPublicKey, PublicKey};
-use num_bigint::BigUint;
 use std::str::FromStr;
 
 static RSA_PRIVATE_KEY: Lazy<Arc<RSAPrivateKey>> = Lazy::new(|| {
-    let seed = [0u8; 16];
+    // let seed = [0u8; 16];
     let mut rng = rand::rngs::mock::StepRng::new(0, 1);
     let bits = 2048;
     let key = RSAPrivateKey::new(&mut rng, bits).expect("failed to generate a key");
@@ -46,7 +45,7 @@ impl DataConnector for GithubConnector {
         };
         match query_type_str {
             "github_get_rsa_public_key" => {
-                let mut reason = "".to_string();
+                let reason = "".to_string();
                 let pub_key = Arc::clone(&*RSA_PRIVATE_KEY).to_public_key();
                 // for simplicity, just use Debug trait in RSA Public Key to serialize instead of PEM format.
                 let result: Value = json!(format!("{:?}", pub_key));
@@ -56,7 +55,7 @@ impl DataConnector for GithubConnector {
                 }))
             },
             "github_get_ecdsa_public_key" => {
-                let mut reason = "".to_string();
+                let reason = "".to_string();
                 let req = format!(
                     "GET /zkGetECDSAPubkey HTTP/1.1\r\n\
                     HOST: {}\r\n\
@@ -257,11 +256,10 @@ impl DataConnector for GithubConnector {
                                 if enable_fields["totalIssues"].as_bool().unwrap_or(false) { total_issues } else { mask_value },
                             ];
                             let encoded: Vec<u8> = fields.iter().map(|x| (*x as i32).to_be_bytes()).flatten().collect::<Vec<u8>>();
-                            let rsa_pub_key = RSAPublicKey {
-                                n: rsa::BigUint::from_str(query_param["rsaPubKeyN"].as_str().unwrap()).unwrap(),
-                                e: rsa::BigUint::from_str(query_param["rsaPubKeyE"].as_str().unwrap()).unwrap()
-                            };
-                            let seed = [0u8; 16];
+                            let rsa_pub_key = RSAPublicKey::new(
+                                rsa::BigUint::from_str(query_param["rsaPubKeyN"].as_str().unwrap()).unwrap(),
+                                rsa::BigUint::from_str(query_param["rsaPubKeyE"].as_str().unwrap()).unwrap()
+                            );
                             let mut rng = rand::rngs::mock::StepRng::new(0, 1);
                             let encrypted_claim: Vec<u8> = rsa_pub_key.encrypt(&mut rng, PaddingScheme::PKCS1v15, &encoded).unwrap();
                             let claim_str = base64::encode(&encrypted_claim);
