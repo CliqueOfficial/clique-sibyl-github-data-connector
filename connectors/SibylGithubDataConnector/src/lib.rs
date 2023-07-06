@@ -10,5 +10,6 @@ extern crate rsa;
 extern crate once_cell;
 extern crate rand;
 extern crate base64;
+extern crate num_bigint;
 
 pub mod github;
