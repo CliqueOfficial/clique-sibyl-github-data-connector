@@ -1,4 +1,4 @@
-# SibylGithubDataConnector
+# clique-sibyl-github-data-connector
 
 ## Setup
 
