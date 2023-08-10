@@ -26,7 +26,7 @@ static RSA_PRIVATE_KEY: Lazy<Arc<RSAPrivateKey>> = Lazy::new(|| {
 const GITHUB_API_HOST: &'static str = "api.github.com";
 const GITHUB_GRAPHQL_SUFFIX: &'static str = "/graphql";
 const GITHUB_USER_SUFFIX: &'static str = "/user";
-const SIGN_CLAIM_SGX_HOST: &'static str = "clique-signclaim";
+const SIGN_CLAIM_SGX_HOST: &'static str = "clique-sign-claim";
 
 pub struct GithubConnector {
 
