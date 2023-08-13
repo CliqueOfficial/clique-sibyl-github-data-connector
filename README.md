@@ -8,20 +8,6 @@
 - CPU: Intel Xeon E-2288G
 - Docker (>= 20.10.21) & Docker-Compose
 
-### Prepare SSH keys
-
-To access Github private repository in Dockerfile, you need to configure the SSH keys: 
-
-```bash
-# do not enter passphrase
-ssh-keygen -t ed25519 -C "your_email@example.com"
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_ed25519
-cp ~/.ssh/id_ed25519 .
-```
-
-Then add the content in `~/.ssh/id_ed25519.pub` to [Github SSH keys](https://github.com/settings/keys) by clicking `New SSH keys` button.
-
 ### Prepare cert files
 
 To establish a TLS channel, we need a CA and generates a client cert for mutual authentication, store them at `cert` directory.
