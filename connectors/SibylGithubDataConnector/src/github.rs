@@ -216,7 +216,7 @@ impl DataConnector for GithubConnector {
                                 SIGN_CLAIM_SGX_HOST
                             );
                             let empty_arr: Vec<Value> = vec![];
-                            let zk_range_proof = simple_tls_client_no_cert_check(SIGN_CLAIM_SGX_HOST, &req, 12341, "github").unwrap_or(json!({"result": {}}));
+                            let zk_range_proof = simple_tls_client_no_cert_check(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
                             let zk: &Value = &zk_range_proof["result"];
                             json!({
                                 "userIdHash": github_id_hash,
@@ -349,7 +349,7 @@ impl DataConnector for GithubConnector {
                     Err(e) => {
                         let err = format!("tls_post to str: {:?}", e);
                         println!("{:?}", err);
-                        return Err(err);
+                        return Err(NetworkError::String(err));
                     }
                 };
                 match parse_result(GITHUB_API_HOST, &plaintext) {
