@@ -1,8 +1,8 @@
-FROM public.ecr.aws/clique/clique-sibyl-mtls-base:1.0.0 AS BUILDER
+FROM public.ecr.aws/clique/clique-sibyl-mtls-base:2.0.0 AS BUILDER
 COPY . $APP_DIR/SibylDataConnectors
 RUN bash -c "$BUILD_SCRIPT"
 RUN rm -rf $APP_DIR/SibylDataConnectors
 
 
-FROM public.ecr.aws/clique/clique-sibyl-mtls-base:1.0.0
+FROM public.ecr.aws/clique/clique-sibyl-mtls-base:2.0.0
 COPY --from=BUILDER $APP_DIR $APP_DIR
