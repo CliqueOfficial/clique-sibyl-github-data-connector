@@ -82,7 +82,7 @@ impl DataConnector for GithubConnector {
                 );
                 let github_id_hash: String;
                 let github_username: String;
-                match simple_tls_client(GITHUB_API_HOST, &query_user, 443, "github") {
+                match simple_tls_client(GITHUB_API_HOST, &query_user, 443) {
                     Ok(r) => {
                         let github_id: i64 = match r["id"].as_i64() {
                             Some(id) => id,
@@ -161,7 +161,7 @@ impl DataConnector for GithubConnector {
                         return Err(NetworkError::String(err));
                     }
                 };
-                match parse_result(&plaintext, "github") {
+                match parse_result(GITHUB_API_HOST, &plaintext) {
                     Ok(resp_json) => {
                          match panic::catch_unwind(|| {
                             if let Some(errors) = resp_json.pointer("/errors") {
@@ -352,7 +352,7 @@ impl DataConnector for GithubConnector {
                         return Err(err);
                     }
                 };
-                match parse_result(&plaintext, "github") {
+                match parse_result(GITHUB_API_HOST, &plaintext) {
                     Ok(resp_json) => {
                         match panic::catch_unwind(|| {
                             if let Some(errors) = resp_json.pointer("/errors") {
