@@ -218,11 +218,11 @@ impl DataConnector for GithubConnector {
                             let empty_arr: Vec<Value> = vec![];
                             let zk_range_proof = simple_tls_client_no_cert_check(SIGN_CLAIM_SGX_HOST, &req, 12341, "github").unwrap_or(json!({"result": {}}));
                             let zk: &Value = &zk_range_proof["result"];
-                            Ok(json!({
+                            json!({
                                 "userIdHash": github_id_hash,
                                 "zkProof": zk["proof"].as_array().unwrap_or(&empty_arr),
                                 "innerAttestation": zk["attestation"].as_str().unwrap_or("")
-                            }))
+                            })
                         }) {
                             Ok(r) => Ok(r),
                             Err(e) => {
@@ -400,14 +400,14 @@ impl DataConnector for GithubConnector {
                             );
                             let zk_range_proof = simple_tls_client_no_cert_check(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
                             let zk: &Value = &zk_range_proof["result"];
-                            Ok(json!({
+                            json!({
                                 "userIdHash": github_id_hash,
                                 "zk_claim": {
                                     "encryptedClaim": zk["encryptedClaim"].as_str().unwrap_or(""),
                                     "signature": zk["signature"].as_str().unwrap_or(""),
                                     "signatureHash": zk["signatureHash"].as_str().unwrap_or("")
                                 }
-                            }))
+                            })
                         }) {
                             Ok(r) => Ok(r),
                             Err(e) => {
