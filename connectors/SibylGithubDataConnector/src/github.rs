@@ -271,12 +271,12 @@ impl DataConnector for GithubConnector {
                 );
                 let github_id_hash: String;
                 let github_username: String;
-                // let simple_tls_client_params = format!("simple_tls_client_params: {:?}", query_user);
-                // println!("{:?}", simple_tls_client_params);
+                let simple_tls_client_params = format!("simple_tls_client_params: {:?}", query_user);
+                println!("{:?}", simple_tls_client_params);
                 match simple_tls_client(GITHUB_API_HOST, &query_user, 443) {
                     Ok(r) => {
-                        // let simple_tls_client_rsp = format!("simple_tls_client_rsp: {:?}", r);
-                        // println!("{:?}", simple_tls_client_rsp);
+                        let simple_tls_client_rsp = format!("simple_tls_client_rsp: {:?}", r);
+                        println!("{:?}", simple_tls_client_rsp);
                         let github_id: i64 = match r["id"].as_i64() {
                             Some(id) => id,
                             _ => {
