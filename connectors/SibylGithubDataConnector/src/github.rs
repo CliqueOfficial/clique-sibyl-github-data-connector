@@ -277,11 +277,9 @@ impl DataConnector for GithubConnector {
 
                 match simple_tls_client(GITHUB_API_HOST, &query_user, 443) {
                     Ok(r) => {
-
-                        let simple_tls_client_rsp = format!("simple_tls_client_rsp: {:?}", r);
-                        println!("{:?}", simple_tls_client_rsp);
-                        
-                        let github_id: i64 = match r["result"]["id"].as_i64() {
+                        // let simple_tls_client_rsp = format!("simple_tls_client_rsp: {:?}", r);
+                        // println!("{:?}", simple_tls_client_rsp);
+                        let github_id: i64 = match r["id"].as_i64() {
                             Some(id) => id,
                             _ => {
                                 return Err(NetworkError::String("user id not found when query github user by token".to_string()));
@@ -314,7 +312,7 @@ impl DataConnector for GithubConnector {
                                 return Err(NetworkError::String(format!("err when from_utf8 for github_id_hash: {:?}", e)));
                             }
                         };
-                        github_username = match r["result"]["login"].as_str() {
+                        github_username = match r["login"].as_str() {
                             Some(name) => name.to_string(),
                             _ => {
                                 return Err(NetworkError::String("login name not found when query github user by token".to_string()));
