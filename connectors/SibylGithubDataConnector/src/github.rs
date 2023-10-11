@@ -333,6 +333,10 @@ impl DataConnector for GithubConnector {
                      totalCount nodes {{ stargazers {{ totalCount }} }} }} }} }}\" }}",
                     github_username
                 );
+
+                let gihub_query_params = format!("gihub_query_params: {:?}", query);
+                println!("{:?}", gihub_query_params);
+
                 let req = format!(
                     "POST {} HTTP/1.1\r\n\
                     HOST: {}\r\n\
@@ -404,6 +408,10 @@ impl DataConnector for GithubConnector {
                             );
                             let zk_range_proof = simple_tls_client_no_cert_check(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
                             let zk: &Value = &zk_range_proof["result"];
+
+                            let gihub_query_zk_resp = format!("gihub_query_zk_resp: {:?}", zk);
+                            println!("{:?}", gihub_query_zk_resp);
+
                             json!({
                                 "userIdHash": github_id_hash,
                                 "zk_claim": {
