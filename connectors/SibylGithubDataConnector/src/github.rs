@@ -412,10 +412,10 @@ impl DataConnector for GithubConnector {
 
 
                             let zk_range_proof = simple_tls_client_no_cert_check(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
-                            let zk: &Value = &zk_range_proof["result"];
-
-                            let gihub_query_zk_resp = format!("gihub_query_zk_resp: {:?}", zk_range_proof);
+                            let gihub_query_zk_resp = format!("gihub_query_zk_resp: {:?}", &zk_range_proof);
                             println!("{:?}", gihub_query_zk_resp);
+
+                            let zk: &Value = &zk_range_proof["result"];
 
                             json!({
                                 "userIdHash": github_id_hash,
