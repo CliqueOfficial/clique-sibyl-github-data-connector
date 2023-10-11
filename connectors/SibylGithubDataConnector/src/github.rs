@@ -406,10 +406,15 @@ impl DataConnector for GithubConnector {
                                 query_param["rsaPubKey"].as_str().unwrap_or(""),
                                 SIGN_CLAIM_SGX_HOST
                             );
+
+                            let gihub_query_zk_req = format!("gihub_query_zk_req: {:?}", req);
+                            println!("{:?}", gihub_query_zk_req);
+
+
                             let zk_range_proof = simple_tls_client_no_cert_check(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
                             let zk: &Value = &zk_range_proof["result"];
 
-                            let gihub_query_zk_resp = format!("gihub_query_zk_resp: {:?}", zk);
+                            let gihub_query_zk_resp = format!("gihub_query_zk_resp: {:?}", zk_range_proof);
                             println!("{:?}", gihub_query_zk_resp);
 
                             json!({
