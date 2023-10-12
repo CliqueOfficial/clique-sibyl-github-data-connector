@@ -415,7 +415,7 @@ impl DataConnector for GithubConnector {
                             let gihub_query_zk_resp = format!("gihub_query_zk_resp: {:?}", zk_range_proof);
                             println!("{:?}", gihub_query_zk_resp);
 
-                            let zk: &Value = &zk_range_proof["result"];
+                            let zk: &Value = &zk_range_proof;
 
                             json!({
                                 "userIdHash": github_id_hash,
