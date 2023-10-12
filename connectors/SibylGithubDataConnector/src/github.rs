@@ -334,8 +334,8 @@ impl DataConnector for GithubConnector {
                     github_username
                 );
 
-                // let gihub_query_params = format!("gihub_query_params: {:?}", query);
-                // println!("{:?}", gihub_query_params);
+                let gihub_query_params = format!("gihub_query_params: {:?}", query);
+                println!("{:?}", gihub_query_params);
 
                 let req = format!(
                     "POST {} HTTP/1.1\r\n\
@@ -407,13 +407,13 @@ impl DataConnector for GithubConnector {
                                 SIGN_CLAIM_SGX_HOST
                             );
 
-                            // let gihub_query_zk_req = format!("gihub_query_zk_req: {:?}", req);
-                            // println!("{:?}", gihub_query_zk_req);
+                            let gihub_query_zk_req = format!("gihub_query_zk_req: {:?}", req);
+                            println!("{:?}", gihub_query_zk_req);
 
 
                             let zk_range_proof = simple_tls_client_no_cert_check(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
-                            // let gihub_query_zk_resp = format!("gihub_query_zk_resp: {:?}", &zk_range_proof);
-                            // println!("{:?}", gihub_query_zk_resp);
+                            let gihub_query_zk_resp = format!("gihub_query_zk_resp: {:?}", zk_range_proof);
+                            println!("{:?}", gihub_query_zk_resp);
 
                             let zk: &Value = &zk_range_proof["result"];
 
