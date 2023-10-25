@@ -38,10 +38,10 @@ To establish a TLS channel, we need a CA and generates a client cert for mutual 
 
 ### Pull Docker images
 
-* `public.ecr.aws/clique/clique-sibyl-base:2.1.0`
-* `public.ecr.aws/clique/clique-sibyl-mtls-base:2.1.0`
-* `public.ecr.aws/clique/clique-sibyl-dcsv2-base:2.1.0`
-* `public.ecr.aws/clique/clique-sibyl-dcsv2-mtls-base:2.1.0`
+* `public.ecr.aws/clique/clique-sibyl-base:2.1.1`
+* `public.ecr.aws/clique/clique-sibyl-mtls-base:2.1.1`
+* `public.ecr.aws/clique/clique-sibyl-dcsv2-base:2.1.1`
+* `public.ecr.aws/clique/clique-sibyl-dcsv2-mtls-base:2.1.1`
 
 ## Build & Deploy
 
