@@ -14,6 +14,8 @@ use once_cell::sync::Lazy;
 use std::sync::Arc;
 use rsa::{RSAPrivateKey, PaddingScheme};
 
+use crate::env;
+
 static RSA_PRIVATE_KEY: Lazy<Arc<RSAPrivateKey>> = Lazy::new(|| {
     let seed = [0u8; 16];
     let mut rng = rand::rngs::mock::StepRng::new(0, 1);
@@ -22,12 +24,6 @@ static RSA_PRIVATE_KEY: Lazy<Arc<RSAPrivateKey>> = Lazy::new(|| {
 
     Arc::new(key)
 });
-
-// Github GraphQL API
-const GITHUB_API_HOST: &'static str = "api.github.com";
-const GITHUB_GRAPHQL_SUFFIX: &'static str = "/graphql";
-const GITHUB_USER_SUFFIX: &'static str = "/user";
-const SIGN_CLAIM_SGX_HOST: &'static str = "clique-sign-claim";
 
 pub struct GithubConnector {
 
@@ -76,13 +72,13 @@ impl DataConnector for GithubConnector {
                     Authorization: token {}\r\n\
                     User-Agent: curl/7.79.1\r\n\
                     Accept: application/json\r\n\r\n",
-                    GITHUB_USER_SUFFIX,
-                    GITHUB_API_HOST,
+                    env::GITHUB_USER_SUFFIX,
+                    env::GITHUB_API_HOST,
                     secret
                 );
                 let github_id_hash: String;
                 let github_username: String;
-                match simple_tls_client(GITHUB_API_HOST, &query_user, 443) {
+                match simple_tls_client(env::GITHUB_API_HOST, &query_user, 443) {
                     Ok(r) => {
                         let github_id: i64 = match r["id"].as_i64() {
                             Some(id) => id,
@@ -147,13 +143,13 @@ impl DataConnector for GithubConnector {
                     Content-Type: application/json\r\n\
                     Content-Length: {}\r\n\r\n\
                     {}",
-                    GITHUB_GRAPHQL_SUFFIX,
-                    GITHUB_API_HOST,
+                    env::GITHUB_GRAPHQL_SUFFIX,
+                    env::GITHUB_API_HOST,
                     secret,
                     query.len(),
                     query
                 );
-                let plaintext = match tls_post(GITHUB_API_HOST, &req, 443) {
+                let plaintext = match tls_post(env::GITHUB_API_HOST, &req, 443) {
                     Ok(r) => r,
                     Err(e) => {
                         let err = format!("tls_post to str: {:?}", e);
@@ -161,7 +157,7 @@ impl DataConnector for GithubConnector {
                         return Err(NetworkError::String(err));
                     }
                 };
-                match parse_result(GITHUB_API_HOST, &plaintext) {
+                match parse_result(env::GITHUB_API_HOST, &plaintext) {
                     Ok(resp_json) => {
                          match panic::catch_unwind(|| {
                             if let Some(errors) = resp_json.pointer("/errors") {
@@ -213,10 +209,10 @@ impl DataConnector for GithubConnector {
                                 values[4],
                                 values[5],
                                 data_slot,
-                                SIGN_CLAIM_SGX_HOST
+                                env::SIGN_CLAIM_SGX_HOST
                             );
                             let empty_arr: Vec<Value> = vec![];
-                            let zk_range_proof = simple_tls_client_no_cert_check(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
+                            let zk_range_proof = simple_tls_client_no_cert_check(env::SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
                             let zk: &Value = &zk_range_proof["result"];
                             json!({
                                 "userIdHash": github_id_hash,
@@ -265,15 +261,15 @@ impl DataConnector for GithubConnector {
                     Authorization: token {}\r\n\
                     User-Agent: curl/7.79.1\r\n\
                     Accept: application/json\r\n\r\n",
-                    GITHUB_USER_SUFFIX,
-                    GITHUB_API_HOST,
+                    env::GITHUB_USER_SUFFIX,
+                    env::GITHUB_API_HOST,
                     secret
                 );
                 let github_id_hash: String;
                 let github_username: String;
                 let simple_tls_client_params = format!("simple_tls_client_params: {:?}", query_user);
                 println!("{:?}", simple_tls_client_params);
-                match simple_tls_client(GITHUB_API_HOST, &query_user, 443) {
+                match simple_tls_client(env::GITHUB_API_HOST, &query_user, 443) {
                     Ok(r) => {
                         let simple_tls_client_rsp = format!("simple_tls_client_rsp: {:?}", r);
                         println!("{:?}", simple_tls_client_rsp);
@@ -346,13 +342,13 @@ impl DataConnector for GithubConnector {
                     Content-Type: application/json\r\n\
                     Content-Length: {}\r\n\r\n\
                     {}",
-                    GITHUB_GRAPHQL_SUFFIX,
-                    GITHUB_API_HOST,
+                    env::GITHUB_GRAPHQL_SUFFIX,
+                    env::GITHUB_API_HOST,
                     secret,
                     query.len(),
                     query
                 );
-                let plaintext = match tls_post(GITHUB_API_HOST, &req, 443) {
+                let plaintext = match tls_post(env::GITHUB_API_HOST, &req, 443) {
                     Ok(r) => r,
                     Err(e) => {
                         let err = format!("tls_post to str: {:?}", e);
@@ -360,7 +356,7 @@ impl DataConnector for GithubConnector {
                         return Err(NetworkError::String(err));
                     }
                 };
-                match parse_result(GITHUB_API_HOST, &plaintext) {
+                match parse_result(env::GITHUB_API_HOST, &plaintext) {
                     Ok(resp_json) => {
                         match panic::catch_unwind(|| {
                             if let Some(errors) = resp_json.pointer("/errors") {
@@ -404,14 +400,14 @@ impl DataConnector for GithubConnector {
                                 if enable_fields["contributedTo"].as_bool().unwrap_or(false) { contributed_to } else { mask_value },
                                 if enable_fields["totalIssues"].as_bool().unwrap_or(false) { total_issues } else { mask_value },
                                 query_param["rsaPubKey"].as_str().unwrap_or(""),
-                                SIGN_CLAIM_SGX_HOST
+                                env::SIGN_CLAIM_SGX_HOST
                             );
 
                             // let gihub_query_zk_req = format!("gihub_query_zk_req: {:?}", req);
                             // println!("{:?}", gihub_query_zk_req);
 
 
-                            let zk_range_proof = simple_tls_client_no_cert_check(SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
+                            let zk_range_proof = simple_tls_client_no_cert_check(env::SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
                             // let gihub_query_zk_resp = format!("gihub_query_zk_resp: {:?}", zk_range_proof);
                             // println!("{:?}", gihub_query_zk_resp);
 
