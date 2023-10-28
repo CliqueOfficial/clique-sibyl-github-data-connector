@@ -212,7 +212,7 @@ impl DataConnector for GithubConnector {
                                 env::SIGN_CLAIM_SGX_HOST
                             );
                             let empty_arr: Vec<Value> = vec![];
-                            let zk_range_proof = simple_tls_client_no_cert_check(env::SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
+                            let zk_range_proof = simple_tls_client_no_cert_check(env::SIGN_CLAIM_SGX_HOST, &req, env::SIGN_CLAIM_SGX_PORT).unwrap_or(json!({"result": {}}));
                             let zk: &Value = &zk_range_proof["result"];
                             json!({
                                 "userIdHash": github_id_hash,
@@ -407,7 +407,7 @@ impl DataConnector for GithubConnector {
                             // println!("{:?}", gihub_query_zk_req);
 
 
-                            let zk_range_proof = simple_tls_client_no_cert_check(env::SIGN_CLAIM_SGX_HOST, &req, 12341).unwrap_or(json!({"result": {}}));
+                            let zk_range_proof = simple_tls_client_no_cert_check(env::SIGN_CLAIM_SGX_HOST, &req, env::SIGN_CLAIM_SGX_PORT).unwrap_or(json!({"result": {}}));
                             // let gihub_query_zk_resp = format!("gihub_query_zk_resp: {:?}", zk_range_proof);
                             // println!("{:?}", gihub_query_zk_resp);
 
